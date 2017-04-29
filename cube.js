@@ -36,6 +36,34 @@ function Cube () {
 	this.numTriangles = this.triangleIndices.length/3;
 	
 }
+function CheckerboardSurface (w, h) {
+
+	this.name = "surface";
+	
+	// vertices definition
+	////////////////////////////////////////////////////////////
+	
+	this.vertices = new Float32Array([
+		0.0, 0.0, 0.0,  
+		0.0, 0.0, 1.0,  
+		1.0, 0.0, 0.0,  
+		1.0, 0.0, 1.0,  
+	]);
+	this.textureCoordinates = new Float32Array([
+      0, 0, 0, h, w, 0, w, h
+	]);
+
+	// triangles definition
+	////////////////////////////////////////////////////////////
+	
+	this.triangleIndices = new Uint16Array([
+		0, 1, 2,  2, 1, 3,  // front
+	]);
+	
+	this.numVertices = this.vertices.length/3;
+	this.numTriangles = this.triangleIndices.length/3;
+	
+}
 function Cell () {
 
 	this.name = "cube";

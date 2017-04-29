@@ -1,5 +1,4 @@
 var shaderProgram  = null;
-var shadowShaderProgram  = null;
 var vertexBuffer = null;
 var indexBufferTriangles = null;
 var indexBufferEdges = null;
@@ -17,14 +16,16 @@ function createObjectBuffers(gl, obj, n = true) {
   gl.bufferData(gl.ARRAY_BUFFER, obj.vertices, gl.STATIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
+
+  if (obj.textureCoordinates||0){
+    obj.texturePositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, obj.texturePositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, obj.textureCoordinates, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
   obj.normalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, obj.normalBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, obj.vertex_normal, gl.STATIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-  obj.texturePositionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, obj.texturePositionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, obj.textureCoordinates, gl.STATIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
   obj.indexBufferTriangles = gl.createBuffer();
@@ -53,7 +54,6 @@ function createObjectBuffers(gl, obj, n = true) {
 ///// Initialize the shaders
 /////
 function initShaders(gl) {
-  shadowShaderProgram = shadowMapShader(gl)//lambertianSingleColorShader(gl)
   shaderProgram = lambertianSingleColorShader(gl)
   // create the vertex shader
   var vertexShader = shaderProgram.vertexShader
@@ -85,11 +85,10 @@ function getViewMatrix(gl){
   viewMat = SglMat4.lookAt([0,2,6], [0,0,0], [0,1,0]);
 }
 function drawObject(gl, obj, shader, fillColor, stack) {
-      gl.uniformMatrix4fv(shader.uModelViewMatrixLocation, false, stack.matrix);
   // Draw the primitive
   gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);
-  gl.enableVertexAttribArray(shader.aPosition);
-  gl.vertexAttribPointer(shader.aPosition, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(shader.aPositionIndex);
+  gl.vertexAttribPointer(shader.aPositionIndex, 3, gl.FLOAT, false, 0, 0);
 
   if (shader.aColorIndex && obj.colorBuffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, obj.colorBuffer);
@@ -97,24 +96,18 @@ function drawObject(gl, obj, shader, fillColor, stack) {
     gl.vertexAttribPointer(shader.aColorIndex, 4, gl.FLOAT, false, 0, 0);
   }
 
-
-  if (shader.aNormal!=null){
-    gl.bindBuffer(gl.ARRAY_BUFFER, obj.normalBuffer);
-    gl.enableVertexAttribArray(shader.aNormal);
-    gl.vertexAttribPointer(shader.aNormal, 3, gl.FLOAT, false, 0, 0);
-  }
-
-  if (shader.aTexturePosition!=null){
+  if (obj.textureCoordinates||0) {
     gl.bindBuffer(gl.ARRAY_BUFFER, obj.texturePositionBuffer);
-    gl.enableVertexAttribArray(shader.aTexturePosition);
-    gl.vertexAttribPointer(shader.aTexturePosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shader.aCheckerTexPositionIndex);
+    gl.vertexAttribPointer(shader.aCheckerTextPositionIndex, 2, gl.FLOAT, false, 0, 0);
   }
+  gl.bindBuffer(gl.ARRAY_BUFFER, obj.normalBuffer);
+  gl.enableVertexAttribArray(shader.aNormalIndex);
+  gl.vertexAttribPointer(shader.aNormalIndex, 3, gl.FLOAT, false, 0, 0);
 
-  if (shader.uColorLocation!=null){
-    gl.uniform4fv(shader.uColorLocation, fillColor);
-    gl.uniform4fv(shader.uLightColorLocation, [1, 1, 1, 1]);
-    gl.uniform4fv(shader.uLightDirectionLocation, sunLightDirection);
-  }
+  gl.uniform4fv(shader.uColorLocation, fillColor);
+  gl.uniform4fv(shader.uLightColorLocation, [1, 1, 1, 1]);
+  gl.uniform4fv(shader.uLightDirectionLocation, sunLightDirection);
 
   gl.enable(gl.POLYGON_OFFSET_FILL);
 
@@ -125,43 +118,3 @@ function drawObject(gl, obj, shader, fillColor, stack) {
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 };
-
-
-
-TextureTarget = function () {
-  this.framebuffer = null;
-  this.texture = null;
-};
-function prepareRenderToTextureFrameBuffer(gl, generateMipmap, w, h) {
-  var textureTarget = new TextureTarget();
-  textureTarget.framebuffer = gl.createFramebuffer();
-  gl.bindFramebuffer(gl.FRAMEBUFFER, textureTarget.framebuffer);
-
-  if (w) textureTarget.framebuffer.width = w;
-  else textureTarget.framebuffer.width = 512;
-  if (h) textureTarget.framebuffer.height = h;
-  else textureTarget.framebuffer.height = 512;;
-
-  textureTarget.texture = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, textureTarget.texture);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, textureTarget.framebuffer.width, textureTarget.framebuffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-  if (generateMipmap) gl.generateMipmap(gl.TEXTURE_2D);
-
-  var renderbuffer = gl.createRenderbuffer();
-  gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, textureTarget.framebuffer.width, textureTarget.framebuffer.height);
-
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureTarget.texture, 0);
-  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
-
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-  return textureTarget;
-}//line 44}
