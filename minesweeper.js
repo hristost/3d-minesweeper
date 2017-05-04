@@ -13,7 +13,7 @@ function createBoard(w, h){
     
   for (var x=0; x<w; x++)
     for (var y=0; y<h; y++)
-      board[x][y] = (Math.random()<0.2) ? 9 : 0
+      board[x][y] = (Math.random()<0.15) ? 9 : 0
   for (var x=0; x<w; x++)
     for (var y=0; y<h; y++)
       if (board[x][y]!=9){

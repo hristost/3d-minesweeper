@@ -3,24 +3,26 @@ precision highp float;
 uniform mat4 uProjectionMatrix;     
 uniform mat4 uModelViewMatrix;   
 uniform mat4 uShadowMatrix;   
+uniform vec3 uCameraPosition;
+uniform vec3 uMaterial;
 attribute vec3 aPosition;  
 attribute vec3 aNormal;    
 attribute vec2 aTexturePosition;  
-varying vec3 vpos;   
-varying vec3 vnormal;
-varying vec4 vshadowpos;
-varying vec2 vtexpos;
+varying vec3 vPosition;   
+varying vec3 vNormal;
+varying vec4 vShadowPosition;
+varying vec2 vTexturePosition;
 
 uniform bool uMakeCheckerboardGaps; 
 void main(){  
 
-  vnormal = (uModelViewMatrix * vec4(aNormal, 1) - uModelViewMatrix*vec4(0, 0, 0, 1)).xyz;
+  vNormal = (uModelViewMatrix * vec4(aNormal, 1) - uModelViewMatrix*vec4(0, 0, 0, 1)).xyz;
 
   vec4 position = vec4(aPosition, 1.0);
-  vpos = vec3(uModelViewMatrix *  position);  
+  vPosition = vec3(uModelViewMatrix *  position);  
 
-  vshadowpos = uShadowMatrix * uModelViewMatrix * position;
-  vtexpos = aTexturePosition;
+  vShadowPosition = uShadowMatrix * uModelViewMatrix * position;
+  vTexturePosition = aTexturePosition;
 
   gl_Position = uProjectionMatrix * uModelViewMatrix * position;   
 }  

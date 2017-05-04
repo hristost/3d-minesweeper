@@ -127,9 +127,20 @@ function Flag () {
 		vertices = vertices.concat(
 		p, p/2, z, p, 1.0-p/2, z)
 		faces = faces.concat(i-2, i, i-1, i, i+1, i-1)
-		p+= 0.05
+		p+= 0.07
 	}	
 	this.vertices = new Float32Array(vertices);
+  this.updateFlag = function(t, gl){
+
+    for (var i = 0; i<this.vertices.length; i+=3){
+
+      x = this.vertices[i];
+      this.vertices[i+2] = Math.sin(x*8)*0.05*Math.sin(2*t)+0.2*Math.sin(t)*x
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+  }
 
 	// triangles definition
 	////////////////////////////////////////////////////////////

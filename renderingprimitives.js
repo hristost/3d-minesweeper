@@ -9,9 +9,9 @@ var sunLightDirection = SglVec4.normalize([1.5, 2.5, 0.5, 1.0]);
 
 //// Initialize the buffers
 ////
-function createObjectBuffers(gl, obj, n = true) {
-  if(n)ComputeNormals(obj)
-  else console.log("Not computing normals")
+function createObjectBuffers(gl, obj, n = false) {
+  if(!n)ComputeNormals(obj)
+  else ComputeNormalsSmooth(obj)
   obj.vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, obj.vertices, gl.STATIC_DRAW);
@@ -64,7 +64,7 @@ function initShaders(gl) {
   // Create the shader program
 }
 
-function initialize(gl, primitive, n=true) {
+function initialize(gl, primitive, n=false) {
   createObjectBuffers(gl, primitive, n);
   initShaders(gl);
   gl.useProgram(shaderProgram)
@@ -84,13 +84,15 @@ function getViewMatrix(gl){
   projMat = SglMat4.perspective(0.8, width/height, 0.1, 1000.0);
   viewMat = SglMat4.lookAt([0,2,6], [0,0,0], [0,1,0]);
 }
-function drawObject(gl, obj, shader, fillColor, stack) {
+function drawObject(gl, obj, shader, fillColor, stack, material = [0.85, 0.0, 0.15]) {
       gl.uniformMatrix4fv(shader.uModelViewMatrixLocation, false, stack.matrix);
   // Draw the primitive
   gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);
   gl.enableVertexAttribArray(shader.aPosition);
   gl.vertexAttribPointer(shader.aPosition, 3, gl.FLOAT, false, 0, 0);
 
+  if (shader.uMaterial)
+    gl.uniform3fv(shader.uMaterial, material);
   if (shader.aColorIndex && obj.colorBuffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, obj.colorBuffer);
     gl.enableVertexAttribArray(shader.aColorIndex);

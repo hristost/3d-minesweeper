@@ -30,10 +30,10 @@ function SphereLatLong (v, h) {
       let prevLevelStart = (v-1) * horizontalSegments;
       // Link triangles
       for (var i = 0; i<horizontalSegments-1; i++){
-        indices = indices.concat([levelStart+i, levelStart+i+1, prevLevelStart+i]);
+        indices = indices.concat([levelStart+i+1, levelStart+i, prevLevelStart+i]);
         indices = indices.concat([prevLevelStart+i, prevLevelStart+i+1, levelStart+i+1]);
       }
-      indices = indices.concat([levelStart+horizontalSegments-1, levelStart, prevLevelStart+horizontalSegments-1]);
+      indices = indices.concat([levelStart, levelStart+horizontalSegments-1, prevLevelStart+horizontalSegments-1]);
       indices = indices.concat([prevLevelStart+horizontalSegments-1, prevLevelStart, levelStart]);
     }    
   }
@@ -49,7 +49,7 @@ function SphereLatLong (v, h) {
     indices = indices.concat(lastLevel+i, lastLevel+i+1, northPole);
   }
   indices = indices.concat(0, horizontalSegments-1, southPole);
-  indices = indices.concat(lastLevel,lastLevel+horizontalSegments-1, northPole);
+  indices = indices.concat(lastLevel, northPole, lastLevel+horizontalSegments-1);
 
   this.vertices = new Float32Array(vertices);
   this.triangleIndices = new Uint16Array(indices);

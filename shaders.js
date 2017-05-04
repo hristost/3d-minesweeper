@@ -41,8 +41,10 @@ lambertianSingleColorShader = function (gl) {
   shaderProgram.aNormal =  gl.getAttribLocation(shaderProgram, 'aNormal');
   shaderProgram.aTexturePosition =  gl.getAttribLocation(shaderProgram, 'aTexturePosition');
 
+  shaderProgram.uCameraPosition = gl.getUniformLocation(shaderProgram,"uCameraPosition");
   shaderProgram.uProjectionMatrixLocation = gl.getUniformLocation(shaderProgram,"uProjectionMatrix");
   shaderProgram.uModelViewMatrixLocation = gl.getUniformLocation(shaderProgram,"uModelViewMatrix");
+  shaderProgram.uMaterial = gl.getUniformLocation(shaderProgram,"uMaterial");
   shaderProgram.uLightDirectionLocation = gl.getUniformLocation(shaderProgram,"uLightDirection");
   shaderProgram.uLightColorLocation = gl.getUniformLocation(shaderProgram,"uLightColor");
   shaderProgram.uColorLocation = gl.getUniformLocation(shaderProgram,"uColor");
@@ -50,6 +52,7 @@ lambertianSingleColorShader = function (gl) {
   shaderProgram.uShadowMatrix = gl.getUniformLocation(shaderProgram,"uShadowMatrix");
 
   shaderProgram.uMakeCheckerboardGaps = gl.getUniformLocation(shaderProgram,"uMakeCheckerboardGaps");
+  shaderProgram.uCheckerboardPosition = gl.getUniformLocation(shaderProgram,"uCheckerboardPosition");
   return shaderProgram;
 };
 

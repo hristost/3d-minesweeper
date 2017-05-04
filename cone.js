@@ -47,8 +47,8 @@ function Cone (resolution) {
 	for (var i = 0; i < resolution; i++) {
 	
 		this.triangleIndices[triangleoffset] = 0;
-		this.triangleIndices[triangleoffset+1] = 1 + (i % resolution);
-		this.triangleIndices[triangleoffset+2] = 1 + ((i+1) % resolution);
+		this.triangleIndices[triangleoffset+2] = 1 + (i % resolution);
+		this.triangleIndices[triangleoffset+1] = 1 + ((i+1) % resolution);
 		triangleoffset += 3;
 	}
 	

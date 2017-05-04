@@ -5,7 +5,7 @@ float Unpack(vec4 v){
 }
 vec4 pack_depth(const in float d){
     if(d==1.0) return vec4(1.0,1.0,1.0,1.0);
-    float a =d*1.002;
+    float a =d*1.005;
     const vec4 bit_shift = vec4( 1.0	, 256.0		,256.0*256.0	,	256.0*256.0*256.0 );
     const vec4 bit_mask  = vec4( 1.0/256.0	, 1.0/256.0	, 1.0/256.0	,	0.0);
     vec4 res = fract(a * bit_shift);
