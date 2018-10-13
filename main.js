@@ -68,8 +68,8 @@ function start() {
   resizeCanvas()
   // Initialize the OpenGL rendering context
   gl = canvas.getContext("experimental-webgl");
-  gl = WebGLDebugUtils.makeDebugContext(
-    gl, undefined, validateNoneOfTheArgsAreUndefined);
+  // gl = WebGLDebugUtils.makeDebugContext(
+  //   gl, undefined, validateNoneOfTheArgsAreUndefined);
 
   // Only continue if WebGL is available and working
   if (!gl){
